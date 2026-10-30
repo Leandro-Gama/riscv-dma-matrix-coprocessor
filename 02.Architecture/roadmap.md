@@ -25,9 +25,9 @@ O enunciado pede:
 | 1.1 | 30/10 | Requisitos e critérios | `requirements.md`, restrições, critérios de decisão, backlog de perguntas | — |
 | 1.2 | 30/10 | Estudo de topologia e interconexão | estudo, ADR(s), diagrama top-level v1 | — |
 | 1.3 | 31/10 | Estudo de interfaces e protocolos | ADRs, **ICD v1.0** (sinais, temporização, mapa de memória e de registradores) | — |
-| 1.4 | 31/10 | Estudo da arquitetura de verificação | ADR, esqueleto do plano de verificação | — |
+| 1.4 | 31/10 | Esqueleto da arquitetura de verificação (o estudo completo vai para a sprint 2.0) | esqueleto do plano de verificação, perguntas em aberto | — |
 | 1.5 | 30–31/10 | Golden model (Python) | modelo com tiling, modelo de ciclos, geradores, testes | — |
-| 1.6 | 01/11 | Fechamento do E1 | especificação única em `08.Docs/e1_especificacao.md` (diagrama, mapa de memória, sinais; aponta para o ICD), revisões, aprovação do ICD, tag `e1` | — |
+| 1.6 | 01/11 | Fechamento do E1 | especificação única em `08.Docs/e1_especificacao.md` (diagrama, mapa de memória, sinais; aponta para o ICD), relatório consolidado da entrega em `08.Docs/e1_relatorio.md`, ICD v1.0, tag `e1` | — |
 
 **O que cada bloco entrega no E1:**
 
@@ -41,7 +41,8 @@ O enunciado pede:
 
 | Sprint | Período | Objetivo | Status |
 |---|---|---|---|
-| 2.1 | 02–04/11 | Package comum e memória compartilhada (RTL, testbench, assertions, síntese de verificação) | — |
+| 2.0 | 02/11 | Estudo da arquitetura de verificação: estratégia por nível, UVM integrado, consumo do golden model, checagem, cobertura (ADR + plano de verificação v0) | — |
+| 2.1 | 03–05/11 | Package comum e memória compartilhada (RTL, testbench, assertions, síntese de verificação) | — |
 | 2.2 | 04–07/11 | Barramento/interconexão e blocos de sistema (RTL, checker de protocolo, testbench) | — |
 | 2.3 | 07–11/11 | Modelos comportamentais dos blocos + VIP do barramento + top-level esqueleto; primeira multiplicação ponta a ponta sobre modelos | — |
 | 2.4 | 11–14/11 | Acelerador real no top-level esqueleto; fechamento do E2 (tag `e2`) | — |
