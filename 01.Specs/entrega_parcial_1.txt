@@ -1,0 +1,9 @@
+Entrega Parcial I: Planejamento, Microarquitetura e Modelo de
+Referência
+
+Entrega 1 (Semana 4): Planejamento, Microarquitetura e Modelo de Referência
+
+i. O objetivo desta etapa é garantir que o grupo compreendeu o escopo e definiu como os módulos vão se comunicar antes de escrever o RTL.
+ii. Repositório GitHub: Criação do repositório, definição da estrutura de diretórios e primeiro commit.
+iii. Especificação (PDF ou README.md): Diagrama de blocos detalhado do sistema (Top-Level). Definição do mapa de memória (endereços base das matrizes e dos registradores do DMA/Acelerador) e especificação dos sinais de interface entre CPU, DMA e Acelerador.
+iv. Modelo de Referência (Golden Model): Código em software (C, C++ ou Python) que realiza a multiplicação matricial por blocos (tiling). Esse modelo será a base para o ambiente de verificação mais à frente.

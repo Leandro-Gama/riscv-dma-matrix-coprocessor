@@ -1,0 +1,34 @@
+# Build and simulator outputs
+build/
+xcelium.d/
+INCA_libs/
+cov_work/
+xrun.history
+xrun.key
+xrun.log
+*.shm/
+.simvision/
+*.diag
+*.fsdb
+# Waveform dumps are build output; targeted VCDs kept as evidence live under evidencias/
+*.vcd
+!**/evidencias/**/*.vcd
+
+# Firmware build intermediates (.hex stays tracked)
+*.o
+*.elf
+
+# Genus working files (logs and raw reports under 07.Synthesis/runs/ are deliverables and stay tracked)
+fv/
+07.Synthesis/lib/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Editors / OS
+.vscode/
+*.swp
+Thumbs.db
+.DS_Store

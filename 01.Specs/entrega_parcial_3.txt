@@ -1,0 +1,6 @@
+Entrega Parcial 3: RTL do DMA e Memória Compartilhada
+
+Entrega 3 (Semana 7): RTL do DMA e Memória Compartilhada
+i. O foco muda para a infraestrutura de movimentação de dados, que costuma ser o maior gargalo de implementação.
+ii. Código RTL (DMA e Memória): Implementação das máquinas de estado do DMA (estado de leitura de A e B, estado de escrita de C, controle de contadores/endereços) e da memória de dados compartilhada.
+iii. Testbench Unitário (DMA + Memória + Acelerador): Integração inicial sem a CPU. O testbench atua como a CPU, configurando os registradores do DMA por bus functional models (tarefas de escrita) e liberando o DMA para trabalhar. O objetivo é provar que o DMA consegue ler a memória, alimentar o systolic array construído na Entrega 2, e salvar o resultado de volta.

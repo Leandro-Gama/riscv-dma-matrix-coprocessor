@@ -1,0 +1,4 @@
++always-ff-non-blocking
++signal-name-style
++parameter-name-style=localparam_style:ALL_CAPS;parameter_style:ALL_CAPS
++line-length=length:100

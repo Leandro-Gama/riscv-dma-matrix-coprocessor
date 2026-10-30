@@ -1,0 +1,7 @@
+Entrega Parcial 4: Integração Top-Level, Firmware e
+Verificação Automatizada
+
+Entrega 4 (Semana 10): Integração Top-Level, Firmware e Verificação Automatizada
+i. Código RTL Completo: Módulo Top-Level instanciando o RISC-V RV32I, a memória, o DMA e o Acelerador.
+ii. Firmware: Código fonte e binário do programa (em C ou Assembly RISC-V) que será carregado na memória de instruções para configurar os registradores e disparar o sistema.
+iii. UVM Integrado: O ambiente de verificação final que carrega parâmetros e estímulos e compara com o resultado do Modelo de Referência.

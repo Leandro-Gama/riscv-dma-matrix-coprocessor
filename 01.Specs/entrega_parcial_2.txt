@@ -1,0 +1,6 @@
+Entrega Parcial 2:  RTL do Acelerador (Systolic Array) e Testes
+Unitários
+
+Entrega 2 (Semana 6): RTL do Acelerador (Systolic Array) e Testes Unitários
+i. Código RTL (Acelerador): Implementação em Verilog/SystemVerilog da Unidade MAC e da malha sistólica parametrizável.
+ii. Testbench Unitário: Um testbench focado apenas no acelerador. O grupo deve injetar os dados manualmente (simulando o comportamento do DMA) para provar que a malha processa os dados e acumula os resultados corretamente para pelo menos dois tamanhos de array (ex: 2x2 e 4x4).
