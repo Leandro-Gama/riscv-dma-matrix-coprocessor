@@ -35,7 +35,7 @@ MODE mantém o valor escrito e alimenta `mode_i`. Cada escrita aceita em CTRL co
 
 | Bits | Campo | Função |
 |---|---|---|
-| 1:0 | STATE | `00`: IDLE; `01`: LOAD; `10`: PROCESSING |
+| 1:0 | STATE | `00`: IDLE; `01`: LOADING; `10`: PROCESSING |
 | 2 | DONE | Última operação concluída |
 | 3 | ERROR | Comando ou acesso inválido detectado pelo acelerador |
 | 31:4 | Reservado | Zero |
