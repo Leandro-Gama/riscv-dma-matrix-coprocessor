@@ -1,95 +1,68 @@
 # Acelerador com array sistólico Weight-Stationary
 
-Especificação de um acelerador de multiplicação matricial Weight-Stationary, parametrizável em `N = 2, 4 ou 8` e `DATA_WIDTH = 8, 16 ou 32` bits por elemento. Cada matriz contém `N²` elementos.
+Acelerador de multiplicação matricial com `N = 2, 4 ou 8` e `DATA_WIDTH = 8, 16 ou 32` bits por elemento. Os pesos permanecem nos elementos de processamento e são reutilizados até um novo carregamento.
 
-## Integração e mapa de memória
+## Casca e integração
 
-O módulo externo de CSR decodifica os endereços de controle, status e dados. A casca do acelerador contém os buffers de entrada e saída, cada um com `N²` elementos; o `systolic_array` recebe os comandos e acessa esses buffers.
+A casca contém um slave AXI4-Lite, os buffers de entrada e saída e o controle/datapath do array.
 
-Os endereços abaixo são tratados pelo CSR externo, com base em `0x4000_0000`:
+Host e DMA acessam os buffers pelo barramento compartilhado, com encaminhamento pela interconexão. O [CSR externo](../../02.Architecture/icd/csr_readme.md) fornece MODE e os pulsos LOAD, START e CLR_ERROR, e recebe `status_o`.
 
-| Endereço/base | Registrador/buffer | Acesso | Função |
-|---|---|---|---|
-| `0x4000_0000` | CTRL | RW | MODE, LOAD, START e CLR_ERROR |
-| `0x4000_0004` | STATUS | RO | STATE, DONE e ERROR |
-| `0x4000_1000` | DATA_IN | WO | Base do buffer de entrada |
-| `0x4000_2000` | DATA_OUT | RO | Base do buffer de saída |
 
-O DMA transfere `N²` elementos, com tamanho de transferência e incremento de endereço de `DATA_WIDTH / 8` bytes por elemento. Cada buffer ocupa `N² × (DATA_WIDTH / 8)` bytes, e a posição acessada é `(endereço − base) / (DATA_WIDTH / 8)`.
+## Buffers endereçáveis
 
-Para `N = 8`, cada buffer ocupa 64, 128 ou 256 bytes, conforme `DATA_WIDTH` seja 8, 16 ou 32 bits. A casca seleciona a posição pelo endereço recebido; os registradores CTRL/STATUS e os sinais de dados do barramento têm 32 bits.
+Cada buffer contém `N²` elementos compactados e ocupa `N² × (DATA_WIDTH / 8)` bytes. A casca seleciona as posições pelo endereço recebido.
 
-### CTRL — offset `0x0000`
-
-| Bits | Campo | Função |
+| Base | Buffer | Acesso externo |
 |---|---|---|
-| 0 | MODE | `0`: CONFIG (pesos); `1`: EXECUTION (entradas) |
-| 1 | LOAD | Escrita de 1 inicia o carregamento dos pesos |
-| 2 | START | Escrita de 1 inicia o processamento |
-| 3 | CLR_ERROR | Escrita de 1 limpa ERROR |
-| 31:4 | Reservado | Leitura retorna zero |
+| `0x4000_1000` | DATA_IN | Escrita |
+| `0x4000_2000` | DATA_OUT | Leitura |
 
-MODE mantém o valor escrito e alimenta `mode_i`. Cada escrita aceita em CTRL com LOAD, START ou CLR_ERROR em 1 gera um pulso de um ciclo no sinal correspondente.
+Os acessos AXI são alinhados em 4 bytes. Cada palavra de 32 bits contém os elementos em ordem little-endian: o elemento de menor endereço ocupa os bits menos significativos. Na escrita, `WSTRB[n]` habilita o byte `WDATA[8*n +: 8]`.
 
-### STATUS — offset `0x0004`
-
-| Bits | Campo | Função |
+| DATA_WIDTH | Elementos por palavra AXI | Bytes por buffer para N=8 |
 |---|---|---|
-| 1:0 | STATE | `00`: IDLE; `01`: LOADING; `10`: PROCESSING |
-| 2 | DONE | Última operação concluída |
-| 3 | ERROR | Comando ou acesso inválido detectado pelo acelerador |
-| 31:4 | Reservado | Zero |
+| 8 bits | 4 | 64 |
+| 16 bits | 2 | 128 |
+| 32 bits | 1 | 256 |
 
-## Funcionamento
+Com palavras completas, o DMA transfere `N² × DATA_WIDTH / 32` palavras por matriz, incrementando o endereço em 4 bytes. A posição de um elemento é `(endereço_do_elemento − base) / (DATA_WIDTH / 8)`.
 
-O buffer de entrada é compartilhado pelos fluxos de CONFIG e EXECUTION. Os pesos ficam nos registradores dos elementos de processamento e são reutilizados até um novo carregamento.
+## Interface AXI4-Lite
 
-### Configuração dos pesos
+O slave usa dados e endereços de 32 bits. `clk_i` e `rst_ni` correspondem a ACLK e ARESETn; AXI, CSR e array compartilham o mesmo clock e reset ativo baixo. As direções abaixo são relativas ao acelerador; sinais sem largura indicada têm 1 bit.
 
-1. Selecionar MODE=0 e usar o DMA para escrever `N²` elementos a partir da base DATA_IN.
-2. Após a conclusão bem-sucedida do DMA, emitir LOAD. No estado LOAD, contadores internos percorrem o buffer e controlam o carregamento dos pesos no array.
-3. Quando todos os pesos estiverem carregados, retornar a IDLE e indicar DONE. O host aguarda essa conclusão antes da próxima etapa.
+| Canal | Entradas | Saídas |
+|---|---|---|
+| AW | `s_axi_awaddr[31:0]`, `s_axi_awprot[2:0]`, `s_axi_awvalid` | `s_axi_awready` |
+| W | `s_axi_wdata[31:0]`, `s_axi_wstrb[3:0]`, `s_axi_wvalid` | `s_axi_wready` |
+| B | `s_axi_bready` | `s_axi_bresp[1:0]`, `s_axi_bvalid` |
+| AR | `s_axi_araddr[31:0]`, `s_axi_arprot[2:0]`, `s_axi_arvalid` | `s_axi_arready` |
+| R | `s_axi_rready` | `s_axi_rdata[31:0]`, `s_axi_rresp[1:0]`, `s_axi_rvalid` |
 
-### Processamento
+- Cada canal transfere quando VALID e READY estão ativos na borda de subida. AW e W são capturados independentemente; a escrita é executada uma única vez, após receber ambos.
+- A casca admite uma escrita e uma leitura pendentes. BRESP/BVALID e RDATA/RRESP/RVALID permanecem estáveis enquanto aguardam a aceitação das respostas.
+- A resposta de escrita é produzida após efetivar ou rejeitar o acesso ao buffer. A resposta AXI confirma o acesso; DONE informa a conclusão da operação do array.
+- Acessos válidos retornam `OKAY` (`00`). Endereços locais inválidos, desalinhamentos, leitura de DATA_IN e escrita em DATA_OUT retornam `SLVERR` (`10`).
+- Escritas em DATA_IN durante LOADING ou PROCESSING retornam `SLVERR` e preservam o buffer. Erros AXI são informados por BRESP/RRESP.
 
-1. Selecionar MODE=1 e usar o DMA para escrever `N²` elementos a partir da base DATA_IN.
-2. Após a conclusão bem-sucedida do DMA, emitir START. No estado PROCESSING, o array lê diretamente o buffer de entrada, executa a multiplicação e preenche o buffer de saída.
-3. Contadores internos sequenciam as entradas, o processamento e o armazenamento dos resultados. Quando todos os resultados estiverem disponíveis no buffer de saída, retornar a IDLE e indicar DONE.
+Referência: [AMBA AXI and ACE Protocol Specification — AXI4-Lite](https://documentation-service.arm.com/static/602a9df190ee6824a1e02b98).
 
-### Leitura
+## Operação
 
-1. O host aguarda DONE do processamento e programa o DMA para ler `N²` elementos a partir da base DATA_OUT.
-2. O DMA incrementa o endereço em `DATA_WIDTH / 8` bytes por elemento, e o host aguarda sua conclusão.
+O buffer de entrada é compartilhado pelos fluxos de configuração e execução. O host coordena as transferências e os comandos conforme o [contrato dos CSR](../../02.Architecture/icd/csr_readme.md).
 
-O host coordena as transferências e as operações do array; leituras de DATA_OUT antes de DONE podem retornar resultados incompletos.
+### Carregamento dos pesos
 
-### Indicadores e regras
+1. Selecionar CONFIG e usar o DMA para preencher DATA_IN.
+2. Aguardar a conclusão bem-sucedida do DMA e emitir LOAD.
+3. Em LOADING, contadores internos percorrem o buffer e controlam a carga dos pesos. Após carregar todos os pesos, retornar a IDLE e indicar DONE.
 
-- Reset estabelece IDLE e limpa DONE e ERROR. O acelerador mantém esses indicadores e os apresenta em `status_o`.
-- LOAD e START são aceitos somente em IDLE. LOAD em EXECUTION e START em CONFIG geram ERROR.
-- LOAD ou START aceito limpa DONE; a conclusão da operação ativa DONE. DONE não impede novos comandos.
-- ERROR registra erros detectados pelo acelerador e permanece ativo até `clr_error_i` ou reset. O CSR trata os erros de endereço externamente.
+### Processamento e leitura
 
-## Interface do acelerador
+1. Após concluir a carga dos pesos, selecionar EXECUTION e usar o DMA para preencher DATA_IN com as entradas.
+2. Aguardar a conclusão bem-sucedida do DMA e emitir START. O array lê diretamente o buffer de entrada e preenche DATA_OUT.
+3. Em PROCESSING, contadores internos sequenciam as entradas, o processamento e o armazenamento dos resultados. Quando todos os resultados estiverem disponíveis, retornar a IDLE e indicar DONE.
+4. O host aguarda DONE, programa o DMA para ler DATA_OUT e aguarda a conclusão da transferência.
 
-### Controle do array
-
-| Sinal | Direção | Largura | Descrição |
-|---|---|---|---|
-| `clk_i` | Entrada | 1 bit | Clock |
-| `rst_ni` | Entrada | 1 bit | Reset ativo baixo |
-| `mode_i` | Entrada | 1 bit | CTRL.MODE: `0` CONFIG; `1` EXECUTION |
-| `start` | Entrada | 1 bit | Pulso de processamento, originado de CTRL.START |
-| `load` | Entrada | 1 bit | Pulso de carregamento dos pesos em CONFIG, originado de CTRL.LOAD |
-| `clr_error_i` | Entrada | 1 bit | Pulso de limpeza de ERROR, originado de CTRL.CLR_ERROR |
-| `status_o` | Saída | 32 bits | Espelha STATUS: STATE em `[1:0]`, DONE em `[2]`, ERROR em `[3]` e zeros em `[31:4]` |
-
-### Acesso aos buffers na casca
-
-| Sinal | Direção | Largura | Descrição |
-|---|---|---|---|
-| `wdata_i` | Entrada | 32 bits | Dados de escrita do barramento |
-| `rdata_o` | Saída | 32 bits | Dados de leitura do barramento |
-| `ready_o` | Saída | 1 bit | Transação concluída |
-| `error_o` | Saída | 1 bit | Erro na transação |
-
+Leituras de DATA_OUT antes de DONE podem retornar resultados incompletos. A latência de LOAD e PROCESSING depende do sequenciamento interno do array.
