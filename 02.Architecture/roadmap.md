@@ -21,13 +21,13 @@ O enunciado pede:
 
 | Sprint | Período | Objetivo | Saídas | Status |
 |---|---|---|---|---|
-| 1.0 | 30/10 | Repositório no GitHub, colegas convidados, primeiro commit; cada colega roda `make check` | repositório, `main` protegida | — |
-| 1.1 | 30/10 | Requisitos e critérios | `requirements.md`, restrições, critérios de decisão, backlog de perguntas | — |
-| 1.2 | 30/10 | Estudo de topologia e interconexão | estudo, ADR(s), diagrama top-level v1 | — |
-| 1.3 | 31/10 | Estudo de interfaces e protocolos | ADRs, **ICD v1.0** (sinais, temporização, mapa de memória e de registradores) | — |
-| 1.4 | 31/10 | Esqueleto da arquitetura de verificação (o estudo completo vai para a sprint 2.0) | esqueleto do plano de verificação, perguntas em aberto | — |
-| 1.5 | 30–31/10 | Golden model (Python) | modelo com tiling, modelo de ciclos, geradores, testes | — |
-| 1.6 | 01/11 | Fechamento do E1 | especificação única em `08.Docs/e1_especificacao.md` (diagrama, mapa de memória, sinais; aponta para o ICD), relatório consolidado da entrega em `08.Docs/e1_relatorio.md`, ICD v1.0, tag `e1` | — |
+| 1.0 | 30/10 | Repositório no GitHub, colegas convidados, primeiro commit; cada colega roda `make check` | repositório, `main` protegida | concluída |
+| 1.1 | 30/10 | Requisitos e critérios | `requirements.md`, restrições, critérios de decisão, backlog de perguntas | adiada |
+| 1.2 | 30/10 | Estudo de topologia e interconexão | estudo, ADR(s), diagrama top-level v1 | concluída (ADR 0001 + diagrama) |
+| 1.3 | 31/10 | Estudo de interfaces e protocolos | ADRs, **ICD v1.0** (sinais, temporização, mapa de memória e de registradores) | concluída c/ pendências (v1.0 na especificação; pontos a combinar listados nela) |
+| 1.4 | 31/10 | Esqueleto da arquitetura de verificação (o estudo completo vai para a sprint 2.0) | esqueleto do plano de verificação, perguntas em aberto | adiada |
+| 1.5 | 30–31/10 | Golden model (Python) | modelo com tiling, modelo de ciclos, geradores, testes | concluída c/ pendências (modelo com tiling e testes; modelo de ciclos fica para depois) |
+| 1.6 | 01/11 | Fechamento do E1 | especificação única em `08.Docs/e1_especificacao.md` (diagrama, mapa de memória, sinais; aponta para o ICD), relatório consolidado da entrega em `08.Docs/e1_relatorio.md`, ICD v1.0, tag `e1` | em andamento |
 
 **O que cada bloco entrega no E1:**
 
