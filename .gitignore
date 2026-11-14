@@ -32,3 +32,14 @@ __pycache__/
 *.swp
 Thumbs.db
 .DS_Store
+
+# LaTeX (08.Docs): só o fonte .tex e o PDF final são versionados
+08.Docs/**/*.aux
+08.Docs/**/*.out
+08.Docs/**/*.toc
+08.Docs/**/*.lof
+08.Docs/**/*.lot
+08.Docs/**/*.fls
+08.Docs/**/*.fdb_latexmk
+08.Docs/**/*.synctex.gz
+08.Docs/**/plano_de_verificacao.log
