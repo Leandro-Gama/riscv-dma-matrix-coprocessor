@@ -8,13 +8,13 @@ Projeto final da Fase 03 do CI Digital. O enunciado está em [01.Specs/](01.Spec
 
 | Entrega | Data | Status |
 |---|---|---|
-| E1 · Planejamento, microarquitetura e golden model | 01/11/2026 | em andamento |
+| E1 · Planejamento, microarquitetura e golden model | 01/11/2026 | em andamento: [especificação](08.Docs/e1_especificacao.md) e [golden model](03.Reference/) |
 | E2 · RTL do acelerador e testes unitários | 14/11/2026 | — |
 | E3 · RTL do DMA e memória compartilhada | 22/11/2026 | — |
 | E4 · Integração top-level, firmware e UVM integrado | 13/12/2026 | — |
 | Final · relatório e apresentação | 18–19/12/2026 | — |
 
-O andamento detalhado por sprint está em [02.Architecture/roadmap.md](02.Architecture/roadmap.md).
+O andamento detalhado está em [02.Architecture/roadmap.md](02.Architecture/roadmap.md).
 
 ## Time
 
@@ -30,7 +30,7 @@ O andamento detalhado por sprint está em [02.Architecture/roadmap.md](02.Archit
 | Diretório | Conteúdo |
 |---|---|
 | [01.Specs/](01.Specs/) | enunciado e divisão de tarefas (somente leitura) |
-| [02.Architecture/](02.Architecture/) | roadmap, requisitos, estudos, decisões (ADRs), contrato de interfaces (ICD), relatórios de sprint |
+| [02.Architecture/](02.Architecture/) | cronograma, decisões de arquitetura (ADRs), contrato de interfaces, diagramas |
 | [03.Reference/](03.Reference/) | modelo de referência (golden model) em Python |
 | [04.RTL/](04.RTL/) | RTL em SystemVerilog sintetizável, um subdiretório por bloco |
 | [05.Verification/](05.Verification/) | testbenches unitários, VIP, modelos, ambientes de subsistema e sistema (UVM) |

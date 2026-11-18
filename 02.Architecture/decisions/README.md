@@ -10,3 +10,4 @@ Status possíveis:
 
 | Nº | Título | Status | Blocos afetados |
 |---|---|---|---|
+| [0001](0001-barramento-axi4-lite.md) | Barramento AXI4-Lite com uma interconexão única | proposta | Sistema, CPU, DMA, Acelerador |
