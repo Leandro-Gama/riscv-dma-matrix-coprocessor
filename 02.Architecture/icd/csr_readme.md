@@ -3,7 +3,19 @@
 Módulo que o host (RISC-V) usa para configurar e ler os status dos IPs presente no barramento. Acessivel na faxia de endereço: 0x0000_0000 a 0x4000_0000
 
 ## CSR do DMA
-To be defined
+
+Base `0x2000_0000`, registradores de 32 bits. Definição completa na seção 5 da [especificação da E1](../../08.Docs/e1_especificacao.md); RTL em [04.RTL/dma](../../04.RTL/dma/README.md).
+
+| Offset | Registrador | Acesso |
+|---|---|---|
+| `0x00` | ADDR_A | RW |
+| `0x04` | ADDR_B | RW |
+| `0x08` | ADDR_C | RW |
+| `0x0C` | DIM_M | RW |
+| `0x10` | DIM_K | RW |
+| `0x14` | DIM_N | RW |
+| `0x18` | CONTROL (bit 0 START, bit 1 IRQ_EN) | RW |
+| `0x1C` | STATUS (bit 0 BUSY, bit 1 DONE, bit 2 ERROR) | RO |
 
 ## CSR do acelerador
 

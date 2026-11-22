@@ -1,0 +1,210 @@
+module dma_top #(
+    parameter int          ARRAY_SIZE = 2,
+    parameter int          DATA_WIDTH = 8,
+    parameter logic [31:0] ACCEL_BASE = 32'h4000_0000
+) (
+    input  logic        clk_i,
+    input  logic        rst_ni,
+
+    input  logic [31:0] s_axi_awaddr,
+    input  logic [2:0]  s_axi_awprot,
+    input  logic        s_axi_awvalid,
+    output logic        s_axi_awready,
+    input  logic [31:0] s_axi_wdata,
+    input  logic [3:0]  s_axi_wstrb,
+    input  logic        s_axi_wvalid,
+    output logic        s_axi_wready,
+    output logic [1:0]  s_axi_bresp,
+    output logic        s_axi_bvalid,
+    input  logic        s_axi_bready,
+    input  logic [31:0] s_axi_araddr,
+    input  logic [2:0]  s_axi_arprot,
+    input  logic        s_axi_arvalid,
+    output logic        s_axi_arready,
+    output logic [31:0] s_axi_rdata,
+    output logic [1:0]  s_axi_rresp,
+    output logic        s_axi_rvalid,
+    input  logic        s_axi_rready,
+
+    output logic [31:0] m_axi_awaddr,
+    output logic [2:0]  m_axi_awprot,
+    output logic        m_axi_awvalid,
+    input  logic        m_axi_awready,
+    output logic [31:0] m_axi_wdata,
+    output logic [3:0]  m_axi_wstrb,
+    output logic        m_axi_wvalid,
+    input  logic        m_axi_wready,
+    input  logic [1:0]  m_axi_bresp,
+    input  logic        m_axi_bvalid,
+    output logic        m_axi_bready,
+    output logic [31:0] m_axi_araddr,
+    output logic [2:0]  m_axi_arprot,
+    output logic        m_axi_arvalid,
+    input  logic        m_axi_arready,
+    input  logic [31:0] m_axi_rdata,
+    input  logic [1:0]  m_axi_rresp,
+    input  logic        m_axi_rvalid,
+    output logic        m_axi_rready,
+
+    output logic        irq_o
+);
+    import dma_pkg::*;
+
+    logic        start, busy, finish, error;
+    logic [31:0] addr_a, addr_b, addr_c, dim_m, dim_k, dim_n;
+    logic        op_init, setup, elem_next, word_capture, word_clear, out_capture, c_capture;
+    logic        m_next, k_next, n_next;
+    src_e        src;
+    op_e         op;
+    logic        dims_zero, src_b, elem_valid, lane_last, elem_last;
+    logic        m_last, k_last, n_last, k_first, acc_done, acc_error;
+    logic        bus_req, bus_we, bus_done, bus_err;
+    logic [31:0] bus_addr, bus_wdata, bus_rdata;
+    logic [3:0]  bus_wstrb;
+
+    dma_regs u_regs (
+        .clk_i         (clk_i),
+        .rst_ni        (rst_ni),
+        .s_axi_awaddr  (s_axi_awaddr),
+        .s_axi_awprot  (s_axi_awprot),
+        .s_axi_awvalid (s_axi_awvalid),
+        .s_axi_awready (s_axi_awready),
+        .s_axi_wdata   (s_axi_wdata),
+        .s_axi_wstrb   (s_axi_wstrb),
+        .s_axi_wvalid  (s_axi_wvalid),
+        .s_axi_wready  (s_axi_wready),
+        .s_axi_bresp   (s_axi_bresp),
+        .s_axi_bvalid  (s_axi_bvalid),
+        .s_axi_bready  (s_axi_bready),
+        .s_axi_araddr  (s_axi_araddr),
+        .s_axi_arprot  (s_axi_arprot),
+        .s_axi_arvalid (s_axi_arvalid),
+        .s_axi_arready (s_axi_arready),
+        .s_axi_rdata   (s_axi_rdata),
+        .s_axi_rresp   (s_axi_rresp),
+        .s_axi_rvalid  (s_axi_rvalid),
+        .s_axi_rready  (s_axi_rready),
+        .busy_i        (busy),
+        .finish_i      (finish),
+        .error_i       (error),
+        .start_o       (start),
+        .addr_a_o      (addr_a),
+        .addr_b_o      (addr_b),
+        .addr_c_o      (addr_c),
+        .dim_m_o       (dim_m),
+        .dim_k_o       (dim_k),
+        .dim_n_o       (dim_n),
+        .irq_o         (irq_o)
+    );
+
+    dma_ctrl u_ctrl (
+        .clk_i          (clk_i),
+        .rst_ni         (rst_ni),
+        .start_i        (start),
+        .busy_o         (busy),
+        .finish_o       (finish),
+        .error_o        (error),
+        .dims_zero_i    (dims_zero),
+        .src_b_i        (src_b),
+        .elem_valid_i   (elem_valid),
+        .lane_last_i    (lane_last),
+        .elem_last_i    (elem_last),
+        .m_last_i       (m_last),
+        .k_last_i       (k_last),
+        .n_last_i       (n_last),
+        .k_first_i      (k_first),
+        .acc_done_i     (acc_done),
+        .acc_error_i    (acc_error),
+        .op_init_o      (op_init),
+        .setup_o        (setup),
+        .src_o          (src),
+        .elem_next_o    (elem_next),
+        .word_capture_o (word_capture),
+        .word_clear_o   (word_clear),
+        .out_capture_o  (out_capture),
+        .c_capture_o    (c_capture),
+        .m_next_o       (m_next),
+        .k_next_o       (k_next),
+        .n_next_o       (n_next),
+        .op_o           (op),
+        .bus_req_o      (bus_req),
+        .bus_done_i     (bus_done),
+        .bus_err_i      (bus_err)
+    );
+
+    dma_dp #(
+        .ARRAY_SIZE (ARRAY_SIZE),
+        .DATA_WIDTH (DATA_WIDTH),
+        .ACCEL_BASE (ACCEL_BASE)
+    ) u_dp (
+        .clk_i          (clk_i),
+        .rst_ni         (rst_ni),
+        .addr_a_i       (addr_a),
+        .addr_b_i       (addr_b),
+        .addr_c_i       (addr_c),
+        .dim_m_i        (dim_m),
+        .dim_k_i        (dim_k),
+        .dim_n_i        (dim_n),
+        .op_init_i      (op_init),
+        .setup_i        (setup),
+        .src_i          (src),
+        .elem_next_i    (elem_next),
+        .word_capture_i (word_capture),
+        .word_clear_i   (word_clear),
+        .out_capture_i  (out_capture),
+        .c_capture_i    (c_capture),
+        .m_next_i       (m_next),
+        .k_next_i       (k_next),
+        .n_next_i       (n_next),
+        .op_i           (op),
+        .dims_zero_o    (dims_zero),
+        .src_b_o        (src_b),
+        .elem_valid_o   (elem_valid),
+        .lane_last_o    (lane_last),
+        .elem_last_o    (elem_last),
+        .m_last_o       (m_last),
+        .k_last_o       (k_last),
+        .n_last_o       (n_last),
+        .k_first_o      (k_first),
+        .acc_done_o     (acc_done),
+        .acc_error_o    (acc_error),
+        .bus_we_o       (bus_we),
+        .bus_addr_o     (bus_addr),
+        .bus_wdata_o    (bus_wdata),
+        .bus_wstrb_o    (bus_wstrb),
+        .bus_rdata_i    (bus_rdata)
+    );
+
+    dma_axil_master u_master (
+        .clk_i         (clk_i),
+        .rst_ni        (rst_ni),
+        .req_i         (bus_req),
+        .we_i          (bus_we),
+        .addr_i        (bus_addr),
+        .wdata_i       (bus_wdata),
+        .wstrb_i       (bus_wstrb),
+        .done_o        (bus_done),
+        .err_o         (bus_err),
+        .rdata_o       (bus_rdata),
+        .m_axi_awaddr  (m_axi_awaddr),
+        .m_axi_awprot  (m_axi_awprot),
+        .m_axi_awvalid (m_axi_awvalid),
+        .m_axi_awready (m_axi_awready),
+        .m_axi_wdata   (m_axi_wdata),
+        .m_axi_wstrb   (m_axi_wstrb),
+        .m_axi_wvalid  (m_axi_wvalid),
+        .m_axi_wready  (m_axi_wready),
+        .m_axi_bresp   (m_axi_bresp),
+        .m_axi_bvalid  (m_axi_bvalid),
+        .m_axi_bready  (m_axi_bready),
+        .m_axi_araddr  (m_axi_araddr),
+        .m_axi_arprot  (m_axi_arprot),
+        .m_axi_arvalid (m_axi_arvalid),
+        .m_axi_arready (m_axi_arready),
+        .m_axi_rdata   (m_axi_rdata),
+        .m_axi_rresp   (m_axi_rresp),
+        .m_axi_rvalid  (m_axi_rvalid),
+        .m_axi_rready  (m_axi_rready)
+    );
+
+endmodule
