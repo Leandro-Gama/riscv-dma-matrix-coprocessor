@@ -11,3 +11,4 @@ Status possíveis:
 | Nº | Título | Status | Blocos afetados |
 |---|---|---|---|
 | [0001](0001-barramento-axi4-lite.md) | Barramento AXI4-Lite com uma interconexão única | proposta | Sistema, CPU, DMA, Acelerador |
+| [0002](0002-acumulacao-de-parciais-no-dma.md) | Somas parciais de K acumuladas pelo DMA, com C em DATA_WIDTH bits | proposta | DMA, Acelerador, Sistema |

@@ -1,0 +1,14 @@
+04.RTL/common/axil_if.sv
+04.RTL/accel/accel_systolic.sv
+04.RTL/accel/accel_top.sv
+04.RTL/dma/dma_pkg.sv
+04.RTL/dma/dma_regs.sv
+04.RTL/dma/dma_axil_master.sv
+04.RTL/dma/dma_dp.sv
+04.RTL/dma/dma_ctrl.sv
+04.RTL/dma/dma_top.sv
+04.RTL/soc/soc_dmem.sv
+04.RTL/soc/soc_accel_csr.sv
+04.RTL/soc/soc_axil_decoder.sv
+05.Verification/unit/dma/dma_sva.sv
+05.Verification/unit/dma/dma_subsys_tb.sv
