@@ -42,8 +42,8 @@ O enunciado pede:
 | Sprint | Período | Objetivo | Status |
 |---|---|---|---|
 | 2.0 | 02/11 | Estudo da arquitetura de verificação: estratégia por nível, UVM integrado, consumo do golden model, checagem, cobertura (ADR + plano de verificação v0) | — |
-| 2.1 | 03–05/11 | Package comum e memória compartilhada (RTL, testbench, assertions, síntese de verificação) | — |
-| 2.2 | 04–07/11 | Barramento/interconexão e blocos de sistema (RTL, checker de protocolo, testbench) | — |
+| 2.1 | 03–05/11 | Package comum e memória compartilhada (RTL, testbench, assertions, síntese de verificação) | concluída c/ pendências (RTL, testbenches e assertions prontos; ensaio de síntese pendente) |
+| 2.2 | 04–07/11 | Barramento/interconexão e blocos de sistema (RTL, checker de protocolo, testbench) | em andamento (interconexão e checador de protocolo prontos; adaptador do acelerador e top-level a fazer) |
 | 2.3 | 07–11/11 | Modelos comportamentais dos blocos + VIP do barramento + top-level esqueleto; primeira multiplicação ponta a ponta sobre modelos | — |
 | 2.4 | 11–14/11 | Acelerador real no top-level esqueleto; fechamento do E2 (tag `e2`) | — |
 

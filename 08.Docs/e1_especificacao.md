@@ -118,10 +118,11 @@ Os sinais `awprot`/`arprot` não são usados e ficam em 0. Num escravo, as dire�
 
 A CPU pode ignorar SLVERR e DECERR. O que o DMA faz com elas está em "Registradores do DMA".
 
-**Disputa entre mestres (round-robin).**
-- Quando a CPU e o DMA pedem o barramento ao mesmo tempo, o árbitro dá a vez ao que não foi atendido por último.
-- Uma transação começada vai até a resposta antes de o outro mestre entrar.
-- Ao fim de cada transação, se o outro mestre está esperando, ele é o próximo. Assim nenhum mestre fica parado para sempre.
+**Disputa entre mestres: a prioridade é do DMA.**
+- Quando a CPU e o DMA pedem o barramento no mesmo ciclo, quem passa é o DMA.
+- Uma transação começada vai até a resposta antes de o outro mestre entrar. Como cada mestre tem no máximo uma transação em voo, o barramento é entregue inteiro a um mestre de cada vez.
+- A CPU não fica sem barramento para sempre. Enquanto a transferência corre, o DMA passa boa parte do tempo esperando o acelerador carregar os pesos e calcular, e nesses intervalos a CPU é atendida. Além disso a operação termina.
+- A alternância entre os dois mestres continua disponível por parâmetro da interconexão, para comparar as duas formas de arbitrar.
 
 ## 4. Mapa de memória
 
@@ -132,7 +133,7 @@ A CPU pode ignorar SLVERR e DECERR. O que o DMA faz com elas está em "Registrad
 | `0x2000_0000` | Registradores do DMA | 4 KiB | CPU, pelo barramento |
 | `0x4000_0000` | Acelerador (CTRL, STATUS, DATA_IN, DATA_OUT) | 64 KiB | DMA (e a CPU, para diagnóstico), pelo barramento |
 
-Qualquer outro endereço recebe DECERR.
+Qualquer outro endereço recebe DECERR. Isso vale também para um endereço depois do fim de uma região: ele não volta para o começo da mesma região. É nisso que o DMA se apoia para perceber um endereço de resultado que não cabe na memória.
 
 **Regiões padrão das matrizes** na memória de dados:
 
@@ -285,7 +286,7 @@ O adaptador (Sistema) recebe os acessos AXI4-Lite à região do acelerador e con
 - **somar no DMA:** a cada bloco calculado, o DMA lê C, soma e grava de volta. Funciona com qualquer ordem, inclusive a do exemplo do início deste documento, mas multiplica o tráfego de C no barramento;
 - **somar no acelerador**, que acumula entre um START e outro: o DMA precisa terminar todos os blocos de K de um mesmo bloco de C antes de passar ao próximo, e os pesos são recarregados com mais frequência.
 
-**Polling.** Quando a CPU lê o `STATUS` do DMA em laço, ela disputa o barramento com o DMA. O round-robin garante que nenhum dos dois fica parado para sempre, mas o DMA perde parte dos ciclos. A interrupção evita isso.
+**Polling.** Quando a CPU lê o `STATUS` do DMA em laço, ela disputa o barramento com o DMA. Como a prioridade é do DMA, essa leitura em laço não tira ciclos da transferência: a CPU é atendida nos intervalos em que o DMA está esperando o acelerador. A interrupção ainda vale a pena, porque com ela a CPU para de pedir o barramento.
 
 ## 9. Golden model
 
@@ -319,7 +320,7 @@ python -m pytest 03.Reference   # Windows
 | AXI4-Lite | protocolo de barramento da ARM para acessos simples de 32 bits, com canais separados para endereço, dado e resposta |
 | Mestre, escravo | quem inicia o acesso (CPU, DMA) e quem responde (memória, registradores) |
 | Handshake | troca VALID/READY que marca o ciclo em que uma informação passa de um lado para o outro |
-| Árbitro round-robin | escolhe qual mestre usa o barramento, alternando entre eles quando os dois pedem |
+| Árbitro | escolhe qual mestre usa o barramento quando os dois pedem. Aqui a prioridade é do DMA |
 | Little-endian | o byte de menor endereço fica nos bits menos significativos da palavra |
 | DMA | controlador que move dados entre a memória e o acelerador sem a CPU |
 | Systolic array, malha | grade de elementos de processamento. Os dados passam de um elemento para o vizinho a cada ciclo |

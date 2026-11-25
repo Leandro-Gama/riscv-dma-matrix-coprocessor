@@ -1,9 +1,9 @@
 # 0001 — Barramento AXI4-Lite com uma interconexão única
 
-- **Status:** proposta
-- **Data:** 01/11/2026
+- **Status:** aceita
+- **Data:** 01/11/2026; arbitragem revista em 13/11/2026
 - **Blocos afetados:** Sistema, CPU, DMA, Acelerador
-- **Aprovações:** —
+- **Aprovações:** Sistema (Leandro Gama), 13/11/2026. CPU, DMA e Acelerador em aberto
 
 ## Contexto
 
@@ -25,9 +25,10 @@ Faltava escolher o protocolo e a forma de ligar tudo.
 ## Critérios e evidência
 
 - **Uma interface comum para todos.** Com AXI4-Lite, CPU, DMA, memória e acelerador seguem a mesma regra de handshake, e a verificação usa um único checador de protocolo.
+- **Prioridade para quem move os dados.** Enquanto a transferência corre, a CPU só lê o registrador de status em laço. Atrasar essa leitura não atrasa nada; atrasar o DMA atrasa a conta inteira. Por isso, quando os dois pedem o barramento no mesmo ciclo, quem passa é o DMA. A CPU não fica sem barramento para sempre: o DMA passa boa parte do tempo esperando o acelerador carregar os pesos e calcular, e nesses intervalos a CPU é atendida; além disso a operação termina.
 - **Respeitar a interface que o acelerador já definiu.** Como ele está no barramento, uma porta mestre só no DMA atende memória e acelerador.
 - **Simplicidade agora, desempenho depois.** Cada transação AXI4-Lite leva de 2 a 3 ciclos, e o DMA move um elemento por transação. A malha passa a maior parte do tempo esperando dados, e é esperado que seja assim nesta primeira versão. Dois cuidados:
-  - enquanto a CPU lê o status em laço, o round-robin pode dar a ela até metade das vezes no barramento; a interrupção evita isso;
+  - um árbitro que alternasse os dois mestres poderia dar à CPU até metade das vezes no barramento enquanto ela só lê o status; é o que a prioridade do DMA evita;
   - uma memória com duas portas ou uma ligação direta com o acelerador continuam possíveis depois, por nova decisão, se a análise de desempenho pedir.
 
 ## Decisão
@@ -36,7 +37,8 @@ Faltava escolher o protocolo e a forma de ligar tudo.
 - Uma **interconexão única** liga:
   - os mestres: porta de dados da CPU e DMA;
   - os escravos: memória de dados, registradores do DMA e acelerador.
-- Um árbitro **round-robin** alterna os mestres quando os dois pedem o barramento.
+- Quando os dois mestres pedem o barramento no mesmo ciclo, a **prioridade é do DMA**. A alternância entre eles continua disponível por parâmetro da interconexão, para render um número de comparação entre as duas formas de arbitrar.
+- O barramento é concedido por **transação inteira**: os cinco canais ficam ligados a um mestre até a resposta chegar. Isso é possível porque cada mestre tem no máximo uma transação em voo, e dispensa rotear cada canal em separado e reordenar respostas.
 - A **memória de instruções** fica fora do barramento, ligada só à porta de instrução da CPU.
 - O **adaptador AXI4-Lite → casca do acelerador** é do Sistema. Ele guarda CTRL, gera os pulsos LOAD, START e CLR_ERROR e traduz os acessos aos buffers. Assim, o acelerador mantém a interface simples que o dono especificou.
 
