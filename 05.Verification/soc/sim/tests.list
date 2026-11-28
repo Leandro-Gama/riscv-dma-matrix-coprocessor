@@ -1,0 +1,33 @@
+# Regression of the system environment: make regress runs every line on every mesh (2, 4, 8)
+# unless the line says MESH=. Columns: test, seeds, expected verdict, then options for make uvm
+# (FAULT=, NUM_OPS=, DATA_WIDTH=) and MESH= to restrict the line to some meshes.
+#
+# test               seeds       expect  options
+mm_smoke_test        1           pass
+mm_vectors_test      1           pass
+mm_tiling_test       1 2         pass
+mm_limits_test       1           pass
+mm_b2b_test          1 2 3       pass
+mm_irq_poll_test     1           pass
+mm_error_test        1           pass
+mm_reset_midop_test  1 2         pass
+mm_rand_test         1 2 3 4 5   pass
+mm_latency_test      1           pass
+mm_fault_test        1           fail    FAULT=fw_dim_k
+mm_fault_test        2           fail    FAULT=c_flip
+mm_timeout_test      1           fail
+
+# Wider elements on the middle mesh.
+mm_smoke_test        1           pass    DATA_WIDTH=16 MESH=4
+mm_vectors_test      1           pass    DATA_WIDTH=16 MESH=4
+mm_rand_test         1           pass    DATA_WIDTH=16 MESH=4
+mm_smoke_test        1           pass    DATA_WIDTH=32 MESH=4
+mm_vectors_test      1           pass    DATA_WIDTH=32 MESH=4
+mm_rand_test         1           pass    DATA_WIDTH=32 MESH=4
+
+# RTL mutants (make_mutant.py), each must be caught. Built from copies in build/, never the RTL.
+mm_smoke_test        1           fail    BUG=accel_mac_sign MESH=4
+mm_smoke_test        1           fail    BUG=mem_strobe MESH=4
+mm_smoke_test        1           fail    BUG=adapter_level MESH=4
+mm_smoke_test        1           fail    BUG=dma_row_step MESH=4
+mm_limits_test       1           fail    BUG=dma_k_sum MESH=4

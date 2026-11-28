@@ -71,9 +71,11 @@ O enunciado pede:
 
 | Sprint | Período | Objetivo | Status |
 |---|---|---|---|
-| 4.1 | 23–29/11 | CPU real e firmware no top-level; resultado igual ao golden | — |
-| 4.2 | 30/11–06/12 | UVM integrado completo, cobertura, regressão nas 3 configurações, plano de verificação | — |
-| 4.3 | 07–13/12 | Robustez (injeção de falhas, casos de canto), ensaio da síntese do sistema, tag `e4` | — |
+| 4.1 | 23–29/11 | CPU real e firmware no top-level; resultado igual ao golden | concluída c/ pendências: topo e firmware rodando com o modelo de CPU; falta o core |
+| 4.2 | 30/11–06/12 | UVM integrado completo, cobertura, regressão nas 3 configurações, plano de verificação | em andamento: ambiente, cobertura e regressão prontos; falta o plano 1.0 |
+| 4.3 | 07–13/12 | Robustez (injeção de falhas, casos de canto), ensaio da síntese do sistema, tag `e4` | em andamento: falhas e mutantes detectados; falta a síntese do sistema |
+
+O ambiente de verificação do sistema e o modo de rodar estão em [05.Verification/soc/README.md](../05.Verification/soc/README.md).
 
 **Entregas entre blocos:**
 

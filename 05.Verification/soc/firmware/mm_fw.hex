@@ -1,0 +1,40 @@
+// generated from mm_fw.S by rv32i_asm.py; do not edit
+10000437 // 0000: li      s0, DMEM_BASE
+00040413 // 0004
+200004b7 // 0008: li      s1, DMAREG_BASE
+00048493 // 000c
+00042283 // 0010: lw      t0, PB_CMD(s0)
+fe028ee3 // 0014: beq     t0, zero, wait_cmd
+00442303 // 0018: lw      t1, PB_ADDR_A(s0)
+0064a023 // 001c: sw      t1, DMA_ADDR_A(s1)
+00842303 // 0020: lw      t1, PB_ADDR_B(s0)
+0064a223 // 0024: sw      t1, DMA_ADDR_B(s1)
+00c42303 // 0028: lw      t1, PB_ADDR_C(s0)
+0064a423 // 002c: sw      t1, DMA_ADDR_C(s1)
+01042303 // 0030: lw      t1, PB_DIM_M(s0)
+0064a623 // 0034: sw      t1, DMA_DIM_M(s1)
+01c42383 // 0038: lw      t2, PB_FLAGS(s0)
+01442303 // 003c: lw      t1, PB_DIM_K(s0)
+1003fe13 // 0040: andi    t3, t2, FLAG_FAULT_DIM_K
+000e0463 // 0044: beq     t3, zero, k_ok
+fff30313 // 0048: addi    t1, t1, -1
+0064a823 // 004c: sw      t1, DMA_DIM_K(s1)
+01842303 // 0050: lw      t1, PB_DIM_N(s0)
+0064aa23 // 0054: sw      t1, DMA_DIM_N(s1)
+00100e13 // 0058: li      t3, CONTROL_START
+0013fe93 // 005c: andi    t4, t2, FLAG_IRQ_EN
+000e8463 // 0060: beq     t4, zero, go
+00300e13 // 0064: li      t3, CONTROL_START_IRQ_EN
+01c4ac23 // 0068: sw      t3, DMA_CONTROL(s1)
+01c4ae83 // 006c: lw      t4, DMA_STATUS(s1)
+002eff13 // 0070: andi    t5, t4, STATUS_DONE
+fe0f0ce3 // 0074: beq     t5, zero, poll
+2003ff13 // 0078: andi    t5, t2, FLAG_FAULT_HANG
+000f1e63 // 007c: bne     t5, zero, hang
+03d42023 // 0080: sw      t4, PB_STATUS(s0)
+00042023 // 0084: sw      zero, PB_CMD(s0)
+02442f83 // 0088: lw      t6, PB_DONE_COUNT(s0)
+001f8f93 // 008c: addi    t6, t6, 1
+03f42223 // 0090: sw      t6, PB_DONE_COUNT(s0)
+f7dff06f // 0094: jal     zero, wait_cmd
+0000006f // 0098: jal     zero, hang

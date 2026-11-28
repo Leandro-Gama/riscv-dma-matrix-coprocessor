@@ -157,6 +157,8 @@ São só valores padrão: o firmware pode pôr as matrizes em outro lugar da mem
 
 Com 4 KiB por matriz, cabe até 32 × 32 com elementos de 32 bits.
 
+**Bloco de parâmetros do firmware de teste.** Nos testes do sistema, as 10 primeiras palavras da memória de dados (`0x1000_0000` a `0x1000_0027`) são a área onde o ambiente de verificação descreve cada operação e onde o firmware de teste responde: comando, endereços de A, B e C, M, K, N, opções, STATUS no fim e contador de operações concluídas. A descrição completa está no [README do ambiente](../05.Verification/soc/README.md). O firmware do produto não precisa seguir esse formato.
+
 ## 5. Registradores do DMA (base `0x2000_0000`)
 
 Os nomes vêm da proposta do dono do DMA. Os endereços estão definidos aqui. Todos voltam a 0 no reset.
@@ -213,6 +215,8 @@ Quem guarda `CTRL` e gera os pulsos é o adaptador do Sistema. Numa mesma escrit
 As direções são vistas pelo próprio bloco. Toda porta AXI4-Lite tem os sinais listados em "Barramento AXI4-Lite".
 
 ### CPU
+
+O módulo se chama `cpu_top`. O topo do sistema (`soc_top`) o instancia com as portas abaixo. Até o core ser entregue, a verificação usa um modelo comportamental com o mesmo nome e as mesmas portas.
 
 | Porta | Direção | Largura | Função |
 |---|---|---|---|

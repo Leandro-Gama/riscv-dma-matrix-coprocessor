@@ -1,0 +1,21 @@
+bind soc_subsys soc_sva u_soc_sva (
+    .clk_i,
+    .rst_ni,
+    .irq_o,
+    .mst_awaddr,
+    .mst_araddr,
+    .mst_awvalid,
+    .mst_wvalid,
+    .mst_arvalid,
+    .mst_bvalid,
+    .mst_rvalid,
+    .acc_awaddr,
+    .acc_araddr,
+    .acc_awvalid,
+    .acc_awready,
+    .acc_arvalid,
+    .acc_arready,
+    .acc_load,
+    .acc_start,
+    .acc_status
+);

@@ -4,7 +4,10 @@ import unittest
 import tempfile
 from pathlib import Path
 
-from rv32i_reference_model import RV32IReferenceModel, MASK32
+try:
+    from golden.rv32i_reference_model import RV32IReferenceModel, MASK32
+except ImportError:  # run from inside golden/
+    from rv32i_reference_model import RV32IReferenceModel, MASK32
 
 
 # ============================================================

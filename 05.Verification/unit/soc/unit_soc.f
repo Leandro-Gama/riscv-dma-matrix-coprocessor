@@ -1,4 +1,5 @@
 ../../../04.RTL/common/soc_pkg.sv
+../../../04.RTL/common/axil_if.sv
 ../../../04.RTL/common/axil_slave_port_ctrl.sv
 ../../../04.RTL/common/axil_slave_port_dp.sv
 ../../../04.RTL/common/axil_slave_port.sv
@@ -14,6 +15,10 @@
 ../../../04.RTL/soc/accel_adapter_ctrl.sv
 ../../../04.RTL/soc/accel_adapter_dp.sv
 ../../../04.RTL/soc/accel_adapter.sv
+../../../04.RTL/soc/soc_axil_decoder.sv
+../../../04.RTL/accel/accel_systolic.sv
+../../../04.RTL/accel/accel_top.sv
+../../models/cpu_model.sv
 ../../common/axil_master_drv.sv
 ../../common/axil_checker.sv
 ../../common/accel_shell_checker.sv
@@ -24,3 +29,5 @@ tb_mem_instr.sv
 tb_axil_arbiter.sv
 tb_axil_xbar.sv
 tb_accel_adapter.sv
+tb_cpu_model.sv
+tb_accel_link.sv

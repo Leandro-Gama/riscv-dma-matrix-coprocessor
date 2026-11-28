@@ -33,12 +33,14 @@ interface axil_if #(parameter int ADDR_WIDTH = 32, parameter int DATA_WIDTH = 32
     logic                       rready;
 
     modport initiator (
-        output awaddr, awprot, awvalid, wdata, wstrb, wvalid, bready, araddr, arprot, arvalid, rready,
+        output awaddr, awprot, awvalid, wdata, wstrb, wvalid, bready,
+        output araddr, arprot, arvalid, rready,
         input  awready, wready, bresp, bvalid, arready, rdata, rresp, rvalid
     );
 
     modport target (
-        input  awaddr, awprot, awvalid, wdata, wstrb, wvalid, bready, araddr, arprot, arvalid, rready,
+        input  awaddr, awprot, awvalid, wdata, wstrb, wvalid, bready,
+        input  araddr, arprot, arvalid, rready,
         output awready, wready, bresp, bvalid, arready, rdata, rresp, rvalid
     );
 endinterface
